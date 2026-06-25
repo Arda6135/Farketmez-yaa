@@ -14,4 +14,4 @@ class FeatureExtractor:
     def transform_unseen(self, x_val_test):
         x_val_test_tfidf = self.vectorizer.transform(x_val_test)
 
-        return x_val_test_tfidf
+        return x_val_test_tfidf.toarray()
