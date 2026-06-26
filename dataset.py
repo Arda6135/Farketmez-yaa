@@ -7,27 +7,61 @@ class DataSetPreparer:
         self.imdb_path = './imdb.csv'
         self.tweets_path = './tweets.csv'
 
-    def prepareDataSet(self):
+    def prepareDataSet(self, mode = 'both'):
 
-        df_imdb = pd.read_csv(self.imdb_path)
-        df_tweet = pd.read_csv(self.tweets_path)
+        if mode == 'imdb':
+            df_imdb = pd.read_csv(self.imdb_path)
+            df_imdb.columns = ['text','label']
+            df_imdb = df_imdb.dropna()
 
-        df_tweet_reduced = df_tweet.drop(columns=['textID','selected_text'])
+            imdb_mapping = {
+                'negative': 0, 'Negative': 0, 0: 0,
+                'positive': 1, 'Positive': 1, 1: 1,
+            }
 
-        df_imdb.columns = ['text','label']
-        df_tweet_reduced.columns = ['text','label']
+            x_raw = df_imdb['text']
+            y= df_imdb['label'].map(imdb_mapping)
 
-        df_concat = pd.concat([df_imdb,df_tweet_reduced])
-        df_concat = df_concat.dropna(subset=['text', 'label'])
-        label_mapping = {
-            'negative': 0, 'Negative': 0, 0: 0,
-            'positive': 1, 'Positive': 1, 1: 1,
-            'neutral': 2, 'Neutral': 2, 2: 2
-        }
-        df_concat['label'] = df_concat['label'].map(label_mapping)
-        df_concat = df_concat.dropna(subset=['label'])
+            return x_raw, y
+
+
+        elif mode == 'tweets':
+
+            df_tweet = pd.read_csv(self.tweets_path)
+            df_tweet_reduced = df_tweet.drop(columns=['textID','selected_text'])
+            df_tweet_reduced.columns = ['text','label']
+            df_tweet_reduced = df_tweet_reduced.dropna()
+
+            tweet_mapping = {
+                'negative': 0, 'Negative': 0, 0: 0,
+                'neutral': 1, 'Neutral': 1, 2: 1,
+                'positive': 2, 'Positive': 2, 1: 2
+            }
+
+            x_raw = df_tweet_reduced['text']
+            y = df_tweet_reduced['label'].map(tweet_mapping)
+
+            return x_raw, y
         
-        x_raw = df_concat['text']
-        y = df_concat['label']
+        else:
+            df_imdb = pd.read_csv(self.imdb_path)
+            df_tweet = pd.read_csv(self.tweets_path)
+            df_tweet_reduced = df_tweet.drop(columns=['textID','selected_text'])
+            df_imdb.columns = ['text','label']
+            df_tweet_reduced.columns = ['text','label']
 
-        return x_raw,y
+            df_concat = pd.concat([df_imdb, df_tweet_reduced]).dropna()
+
+            fallback_mapping = {
+                'negative': 0,
+                'neutral': 1,
+                'positive': 2
+                }
+            
+            x_raw = df_concat['text']
+            y = df_concat['label'].map(fallback_mapping)
+
+            return x_raw, y
+
+  
+        
