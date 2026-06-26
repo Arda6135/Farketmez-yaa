@@ -7,13 +7,16 @@ from KNN import PyTorchKNNClassifier
 def main():
     
     #Optimnization
-    F_values = [2000, 4000, 6000, 8000, 13000, 17000, 23000, 27000]
-    P_values = [25,35,45,55,65,75,85,95]
-    K_values = [15,19,26,30,34,40,50,63,78,98]
+    F_values = [2000]
+    P_values = [25]
+    K_values = [15]
 
     datasets = ['imdb', 'tweets']
     OutputTxt = "Results.txt"
-    
+
+    with open(OutputTxt, "w") as f:
+        f.write("Previous text cleared. \n\n")
+
     for dataset in datasets:
         splitter = DataSplitter()
         x_train, x_val, x_test, y_train, y_val, y_test = splitter.splitData(mode=dataset)
@@ -25,8 +28,8 @@ def main():
         best_F = None
         best_P = None
         best_K = None
-        with open(OutputTxt, "w") as f:
-            f.write(f"{dataset} dataset:")
+        with open(OutputTxt, "a") as f:
+            f.write(f"{dataset} dataset:\n")
             f.write(f"Train: {len(x_train)}, Val: {len(x_val)}, Test: {len(x_test)}\n")
 
         # Vectorize text data using TF-IDF
@@ -57,28 +60,28 @@ def main():
                         f.write(f"F: {F_max_features}, P: {P_components}, K: {K_neighbors}\n")
                         f.write(f"MSE: {mse}, Accuracy: {accuracy}, F1: {f1}\n")
                         f.write(f"{'-'*40}\n")
-    with open(OutputTxt, "a") as f:
-        f.write(f"Best F,P,K values: F:{F_max_features}, P:{P_components}, K:{K_neighbors}\n")
-        f.write(f"MSE: {best_mse}, Accuracy: {best_accuracy}, F1: {best_f1}\n")
-        f.write(f"{'-'*40}\n")
+        with open(OutputTxt, "a") as f:
+            f.write(f"Best F,P,K values: F:{F_max_features}, P:{P_components}, K:{K_neighbors}\n")
+            f.write(f"MSE: {best_mse}, Accuracy: {best_accuracy}, F1: {best_f1}\n")
+            f.write(f"{'-'*40}\n")
 
-    #Test
-    BestExtractor = FeatureExtractor(max_features=best_F)
-    x_train_best_ext = BestExtractor.fit_transform_train(x_train)
-    x_test_best_ext = BestExtractor.transform_unseen(x_test)
+        #Test
+        BestExtractor = FeatureExtractor(max_features=best_F)
+        x_train_best_ext = BestExtractor.fit_transform_train(x_train)
+        x_test_best_ext = BestExtractor.transform_unseen(x_test)
 
-    BestTransformer = PcaTransformer(n_components=best_P)
-    x_train_best_pca = BestTransformer.fit_transform_train(x_train_best_ext)
-    x_test_best_pca = BestTransformer.transform_unseen(x_test_best_ext)
+        BestTransformer = PcaTransformer(n_components=best_P)
+        x_train_best_pca = BestTransformer.fit_transform_train(x_train_best_ext)
+        x_test_best_pca = BestTransformer.transform_unseen(x_test_best_ext)
 
-    FinalKNN = PyTorchKNNClassifier(k=best_K)
-    FinalKNN.fit(x_train_best_pca, y_train)
+        FinalKNN = PyTorchKNNClassifier(k=best_K)
+        FinalKNN.fit(x_train_best_pca, y_train)
 
-    test_mse, test_accuracy, test_f1 = FinalKNN.evaluate(x_test_best_pca,y_test)
-    with open(OutputTxt, "a") as f:
-        f.write(f"TEST MSE      : {test_mse}\n")
-        f.write(f"TEST ACCURACY : {test_accuracy}\n")
-        f.write(f"TEST F1-SCORE : {test_f1}\n")
-        f.write(f"{'='*40}\n\n")
+        test_mse, test_accuracy, test_f1 = FinalKNN.evaluate(x_test_best_pca,y_test)
+        with open(OutputTxt, "a") as f:
+            f.write(f"TEST MSE      : {test_mse}\n")
+            f.write(f"TEST ACCURACY : {test_accuracy}\n")
+            f.write(f"TEST F1-SCORE : {test_f1}\n")
+            f.write(f"{'='*40}\n\n")
 if __name__ == "__main__":
     main()
