@@ -62,4 +62,14 @@ class PyTorchKNNClassifier:
         macro_f1 = sum(f1_scores) / len(Labels)
 
         return mse, accuracy, macro_f1    
+    def advanced_metrics(self, X_eva, Y_eva):
+        y_true = self._to_tensor(Y_eva, is_label=True)
+        y_pred = torch.tensor(self.predict(X_eva))
 
+        labels = torch.unique(y_true).tolist()
+        num_class = len(labels)
+        #Create Matrix
+        CM = torch.zeros((num_class,num_class), dtype=torch.int32)
+        for t,p in zip(y_true, y_pred):
+            CM[int(t)][int(p)] += 1
+        return CM.tolist()    

@@ -78,10 +78,46 @@ def main():
         FinalKNN.fit(x_train_best_pca, y_train)
 
         test_mse, test_accuracy, test_f1 = FinalKNN.evaluate(x_test_best_pca,y_test)
+        
+        cm = FinalKNN.advanced_metrics(x_test_best_pca, y_test)
+        
+        report = {}
+        num_class = len(cm)   
+        for i in range(num_class):
+            tp = cm[i][i]
+            fp = sum(cm[i]) - tp
+            fn = sum(cm[row][i] for row in range(num_class)) - tp
+
+            precision = tp/(tp+fp) if(tp+fp) > 0 else 0.0
+            recall = tp/(tp+fn) if(tp+fn) > 0 else 0.0
+            f1 = 2*(precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
+
+            report[i] = {
+                "precision": precision,
+                "recall": recall,
+                "f1-score": f1,
+                "Size": sum(cm[i])
+            }
         with open(OutputTxt, "a") as f:
             f.write(f"TEST MSE      : {test_mse}\n")
             f.write(f"TEST ACCURACY : {test_accuracy}\n")
             f.write(f"TEST F1-SCORE : {test_f1}\n")
             f.write(f"{'='*40}\n\n")
+            f.write(f"{'Class':<10}{'Precision':<18}{'Recall':<18}{'F1-Score':<12}{'Size':<12}\n")
+            label_names = {0: "Negative", 1: "Positive"} if dataset == 'imdb' else {0: "Negative", 1: "Neutral", 2: "Positive"}
+            for class_id, metrics in report.items():
+                name = label_names.get(class_id, f"Class {class_id}")
+                f.write(f"{name:<10}{metrics['precision']:<18.4f}{metrics['recall']:<18.4f}{metrics['f1-score']:<12.4f}{metrics['Size']:<12}\n")
+            f.write(f"{'-' *40}\n\n")
+            f.write(f"Confusion Matrix:\n\n")
+            
+            header_str = "          " + "".join([f"{label_names[i]:<12}" for i in range(len(cm))])
+            f.write(header_str + "\n")
+            
+            for i, row in enumerate(cm):
+                row_str = f"{label_names[i]:<10}" + "".join([f"{val:<12}" for val in row])
+                f.write(row_str + "\n")
+                
+            f.write(f"\n{'='*75}\n\n")    
 if __name__ == "__main__":
     main()
