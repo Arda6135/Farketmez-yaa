@@ -46,7 +46,7 @@ class PyTorchKNNClassifier:
 
         mse = torch.mean((y_true.float() - torch.tensor(y_pred).float()) ** 2).item()
 
-        Labels = [0, 1, 2]
+        Labels = torch.unique(y_true).tolist()
         f1_scores = []
 
         for c in Labels:
