@@ -61,7 +61,7 @@ def main():
                         f.write(f"MSE: {mse}, Accuracy: {accuracy}, F1: {f1}\n")
                         f.write(f"{'-'*40}\n")
         with open(OutputTxt, "a") as f:
-            f.write(f"Best F,P,K values: F:{F_max_features}, P:{P_components}, K:{K_neighbors}\n")
+            f.write(f"Best F,P,K values: F:{best_F}, P:{best_P}, K:{best_K}\n")
             f.write(f"MSE: {best_mse}, Accuracy: {best_accuracy}, F1: {best_f1}\n")
             f.write(f"{'-'*40}\n")
 
@@ -85,8 +85,8 @@ def main():
         num_class = len(cm)   
         for i in range(num_class):
             tp = cm[i][i]
-            fp = sum(cm[i]) - tp
-            fn = sum(cm[row][i] for row in range(num_class)) - tp
+            fn = sum(cm[i]) - tp
+            fp = sum(cm[row][i] for row in range(num_class)) - tp
 
             precision = tp/(tp+fp) if(tp+fp) > 0 else 0.0
             recall = tp/(tp+fn) if(tp+fn) > 0 else 0.0
