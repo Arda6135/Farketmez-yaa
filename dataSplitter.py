@@ -14,11 +14,13 @@ class DataSplitter:
 
     def splitData(self, mode = 'both'):
 
+        
+
         x, y = self.preparer.prepareDataSet(mode)
         
         remain_size = self.validation + self.test
 
-        x_train, x_remain, y_train, y_remain = train_test_split(x, y, test_size=remain_size, random_state=self.random_state, stratify=self.y_raw)
+        x_train, x_remain, y_train, y_remain = train_test_split(x, y, test_size=remain_size, random_state=self.random_state, stratify=y)
 
         test_size = self.test / (self.validation + self.test)
 
