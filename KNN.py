@@ -11,9 +11,9 @@ class PyTorchKNNClassifier:
     def _to_tensor(self, data, is_label=False):
         if issparse(data):
             data = data.toarray()
-        elif isinstance(data, np.ndarray):
-            pass
-        elif hasattr(data, 'to_numpy'):
+        if isinstance(data, np.ndarray):
+            data = np.ascontiguousarray(data)
+        if hasattr(data, 'to_numpy'):
             data = data.to_numpy()
 
         if is_label:
