@@ -7,9 +7,9 @@ from KNN import PyTorchKNNClassifier
 def main():
     
     #Optimnization
-    F_values = [2000]
-    P_values = [25]
-    K_values = [15]
+    F_values = [1000,3000,7000]
+    P_values = [20,35,50,80,100]
+    K_values = [25,47,105,150]
 
     datasets = ['imdb', 'tweets']
     OutputTxt = "Results.txt"
@@ -103,6 +103,7 @@ def main():
             f.write(f"TEST ACCURACY : {test_accuracy}\n")
             f.write(f"TEST F1-SCORE : {test_f1}\n")
             f.write(f"{'='*40}\n\n")
+            f.write(f"Classification Report\n\n")
             f.write(f"{'Class':<10}{'Precision':<18}{'Recall':<18}{'F1-Score':<12}{'Size':<12}\n")
             label_names = {0: "Negative", 1: "Positive"} if dataset == 'imdb' else {0: "Negative", 1: "Neutral", 2: "Positive"}
             for class_id, metrics in report.items():
